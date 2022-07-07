@@ -1,0 +1,9 @@
+numpy
+pandas
+matplotlib
+mysql-connector-python
+geopandas
+scipy
+scikit-learn
+python-dotenv
+plotly
