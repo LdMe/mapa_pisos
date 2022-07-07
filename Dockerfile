@@ -6,5 +6,5 @@ WORKDIR /app
 
 RUN pip install -r requirements.txt
 
-CMD ["python", "flask_app.py"]
+CMD ["python", "app.py"]
 #ENTRYPOINT ["./gunicorn.sh"]
