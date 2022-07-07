@@ -10,6 +10,19 @@
         }
         th { text-align: center; }
         td { text-align: center; }
+        .modal-body {
+            text-align: center;
+        }
+        #loadimage {
+            width: 30%;
+        }
+        #home-icon {
+            width: 20px;
+        }
+        .modal {
+            margin-top: 40vh;
+            vertical-align: middle;
+        }
     </style>
 </head>
 
@@ -24,8 +37,13 @@
     {% set terrace = request.args.get('terrace') if request.args.get('terrace') else 0 %}
     {% set type = request.args.get('type') if request.args.get('type') else "piso" %}
     {% set sale = request.args.get('sale') if request.args.get('sale')== "1" else "0" %}
-
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/"><img id="home-icon" src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" alt="home"></a>
+        </div>
+      </nav>
     <div class="container">
+        
         <h1>Calcula tu precio!</h1>
         <form   action="/" method="get">
             <div class="row">
@@ -83,7 +101,7 @@
                     </select>
                 </div>
                 <div class="col-xs-6 col-md-3">
-                    <input class="btn btn-primary" type="submit" value="Calcular">
+                    <input class="submit btn btn-primary" type="submit" value="Calcular" >
                 </div>
             </div>
             <input type="hidden" name="province" value="1">
@@ -92,6 +110,21 @@
             
         </form>
 
+          
+          <!-- Modal -->
+          <div class="modal fade" id="cargandomodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+               
+                <div class="modal-body">
+                  <h3>calculando...</h3>
+                  <img src="https://media1.giphy.com/media/sSgvbe1m3n93G/giphy.gif" id="loadimage" alt="loading">
+                </div>
+                
+              </div>
+            </div>
+          </div>
+          
         {% if rentorsale is defined %}
         <h1>Precio de pisos de {{rentorsale}}</h1>
         {% endif %}
@@ -100,6 +133,10 @@
         <div class="container " >{{prices_html | safe}}</div>
     </div>
 </body>
+<script
+			  src="https://code.jquery.com/jquery-3.6.0.min.js"
+			  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+			  crossorigin="anonymous"></script>
 <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
 <script type='text/javascript'>
   var graphs = {{graphJSON | safe}};
@@ -111,7 +148,18 @@
   Plotly.plot('chart',graphs,layout);
   var barras = {{bars | safe}};
   Plotly.plot('bars',barras,layout);
-</script></html>
+</script>
+<script type='text/javascript'>
+$(".submit").click(function(e){
+    $('#cargandomodal').modal({
+    backdrop: 'static',
+    keyboard: false
+    });
+    $('#cargandomodal').modal('show');
+    
+});
+</script>
+</html>
 
 
 </html>
