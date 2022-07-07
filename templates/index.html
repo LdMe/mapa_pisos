@@ -1,0 +1,117 @@
+<html>
+<head>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+
+    <style>
+        .modebar {
+            display: none;
+        }
+        th { text-align: center; }
+        td { text-align: center; }
+    </style>
+</head>
+
+
+<body>
+
+    {% set surface = request.args.get('surface') if request.args.get('surface') else 100 %}
+    {% set bedrooms = request.args.get('bedrooms') if request.args.get('bedrooms') else 2 %}
+    {% set restrooms = request.args.get('restrooms') if request.args.get('restrooms') else 2 %}
+    {% set floor = request.args.get('floor') if request.args.get('floor') else 2 %}
+    {% set elevator = request.args.get('elevator') if request.args.get('elevator') else 0 %}
+    {% set terrace = request.args.get('terrace') if request.args.get('terrace') else 0 %}
+    {% set type = request.args.get('type') if request.args.get('type') else "piso" %}
+    {% set sale = request.args.get('sale') if request.args.get('sale')== "1" else "0" %}
+
+    <div class="container">
+        <h1>Calcula tu precios!</h1>
+        <form   action="/" method="get">
+            <div class="row">
+                <div class="col-xs-6 col-md-3">
+                    <label for="surface">Superficie</label>
+                    <br>
+                    <input type="number" name="surface" value={{ surface }} min="35" max="300">
+                </div>
+                <div class="col-xs-6 col-md-3">
+                    <label for="bedrooms">Habitaciones</label>
+                    <br>
+                    <input type="number" name="bedrooms" value="{{ bedrooms }}" min="1" max="10">
+                </div>
+                <div class="col-xs-6 col-md-3">
+                    <label for="restrooms">Baños</label>
+                    <br>
+                    <input type="number" name="restrooms" placeholder="baños" value="{{ restrooms }}" min="1" max="10">
+                </div>
+                <div class="col-xs-6 col-md-3">
+                    <label for="floor">Piso(s)</label>
+                    <br>
+                    <input type="number" name="floor"  value="{{ floor }}" min="0" max="10">
+                </div>
+                <div class="col-xs-6 col-md-3">
+                    <label for="elevator">Con ascensor</label>
+                    <br>
+                    <input type="checkbox" name="elevator" value="1" {% if elevator !=0 %}checked="checked"{% endif %}>
+                </div>
+                <div class="col-xs-6 col-md-3">
+                    <label for="terrace">Con terraza</label>
+                    <br>
+                    <input type="checkbox" name="terrace" value="1" {% if terrace !=0 %}checked="checked"{% endif %}>
+                </div>
+                <div class="col-xs-6 col-md-3">
+                    <label for="type">Tipo de inmueble</label>
+                    <br>
+                    <select name="type">
+                        <option value="piso" {% if type == 'piso' %}selected{% endif %}>Piso</option>
+                        <option value="casa" {% if type == 'casa' %}selected{% endif %}>Casa</option>
+                        <option value="apartamento" {% if type == 'apartamento' %}selected{% endif %}>Apartamento</option>
+                        <option value="ático" {% if type == 'ático' %}selected{% endif %}>Ático</option>
+                        <option value="dúplex" {% if type == 'dúplex' %}selected{% endif %}>Dúplex</option>
+                        <option value="estudio" {% if type == 'estudio' %}selected{% endif %}>Estudio</option>
+                        <option value="loft"  {% if type == 'loft' %}selected{% endif %}>Loft</option>
+                        <option value="finca" {% if type == 'finca' %}selected{% endif %}>Finca</option>
+                        <option value="planta" {% if type == 'planta' %}selected{% endif %}>Planta</option>
+                    </select>
+                </div>
+                <div class="col-xs-6 col-md-3">
+                    <label for="rentorsale">Alquiler o venta</label>
+                    <br>
+                    <select name="sale">
+                        <option value="0" {% if sale == "0" %}selected{% endif %}>Alquiler</option>
+                        <option value="1" {% if sale == "1" %}selected{% endif %}>Venta</option>
+                    </select>
+                </div>
+                <div class="col-xs-6 col-md-3">
+                    <input class="btn btn-primary" type="submit" value="Calcular">
+                </div>
+            </div>
+            <input type="hidden" name="province" value="1">
+
+                
+            
+        </form>
+
+        {% if rentorsale is defined %}
+        <h1>Precio de pisos de {{rentorsale}}</h1>
+        {% endif %}
+        <div class="container chart " id='chart' ></div>
+        <div class="container chart" id='bars' ></div>
+        <div class="container " >{{prices_html | safe}}</div>
+    </div>
+</body>
+<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+<script type='text/javascript'>
+  var graphs = {{graphJSON | safe}};
+  var layout = {
+    
+    yaxis: {fixedrange: true},
+    xaxis : {fixedrange: true}
+    };
+  Plotly.plot('chart',graphs,layout);
+  var barras = {{bars | safe}};
+  Plotly.plot('bars',barras,layout);
+</script></html>
+
+
+</html>

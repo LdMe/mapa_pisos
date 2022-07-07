@@ -1,0 +1,7 @@
+#! /bin/bash
+
+export MYSQL_HOST='selenium_database_1'
+export MYSQL_PORT='3306'
+export MYSQL_USER='dbuser'
+export MYSQL_PASSWORD='password'
+export MYSQL_DATABASE='housing'
