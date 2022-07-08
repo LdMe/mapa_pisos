@@ -41,7 +41,7 @@
             background-color: #3c7696;
         }
         .dropdown-menu{
-          height:200px;
+          height:300px;
           overflow-y:auto;
        }
     </style>
@@ -195,7 +195,17 @@ $(".submit").click(function(e){
 });
 
 var province_filter="";
-$(".province-option").addClass("selected-option");
+var selected_provinces = "{{request.args.get('provinces')}}";
+console.log(selected_provinces);
+if(selected_provinces == "all" || selected_provinces == "None"){
+    $(".province-option").addClass("selected-option");
+}else{
+    $(".province-option").each(function(){
+        if(selected_provinces.includes($(this).text())){
+            $(this).addClass("selected-option");
+        }
+    });
+}
 $(".province-option-default").click(function(e){
     e.preventDefault();
     e.stopPropagation();
