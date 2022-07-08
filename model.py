@@ -43,7 +43,8 @@ def clean_df(df):
     df_cp["floor"] = df_cp["floor"].str.extract(r'([0-9])',expand = True)
     df_cp["floor"] = df_cp["floor"].astype(str).astype(float)
     df_cp["type"] = df_cp["title"].str.split(" ").str[0].str.lower()
-
+    df_cp.loc[df_cp["type"] == "planta","floor"] = 0
+    df_cp.loc[df_cp["type"] == "planta","type"] = "piso"
     df_cp = df_cp[df_cp["floor"].notnull()].copy()
     df_cp = df_cp[df_cp != -1]
     # A evaluar: borrar pisos sin planta (casi la mitad) o poner media / cero
@@ -172,13 +173,8 @@ def load_predictors(file_path):
 
 def get_mean_values(df):
     return df.mean()
-
-def get_unique_values(df,column):
-    return df[column].unique()
-
-def get_price_for_houses_multiple_predictors(predictors,house_properties,province=True):
-    types = ['piso', 'apartamento', 'ático', 'loft', 'dúplex', 'estudio', 'casa', 'planta', 'finca']
-    locations_province = [
+def get_province_names():
+    return [
         'A Coruña', 'Álava', 'Albacete', 'Alicante', 'Almería', 'Asturias', 'Ávila',
         'Badajoz', 'Baleares', 'Barcelona', 'Burgos', 'Cáceres', 'Cádiz', 'Cantabria',
         'Castellón', 'Ciudad Real', 'Córdoba', 'Cuenca', 'Gerona', 'Granada',
@@ -187,7 +183,8 @@ def get_price_for_houses_multiple_predictors(predictors,house_properties,provinc
         'Ourense', 'Palencia', 'Pontevedra', 'Salamanca', 'Santa Cruz de Tenerife',
         'Segovia', 'Sevilla', 'Soria', 'Tarragona', 'Teruel', 'Toledo', 'Valencia',
         'Valladolid', 'Vizcaya', 'Zamora', 'Zaragoza']
-    locations_capital = [
+def get_capital_names():
+    return [
         'A Coruña', 'Albacete', 'Alicante', 'Almería', 'Ávila', 'Badajoz', 'Barcelona',
         'Bilbao', 'Burgos', 'Cáceres', 'Cádiz', 'Castellón de la Plana', 'Ciudad Real',
         'Córdoba', 'Cuenca', 'Girona', 'Granada', 'Guadalajara', 'Huelva', 'Huesca',
@@ -197,6 +194,13 @@ def get_price_for_houses_multiple_predictors(predictors,house_properties,provinc
         'Santa Cruz de Tenerife', 'Santander', 'Segovia', 'Sevilla', 'Soria',
         'Tarragona', 'Teruel', 'Toledo', 'Valencia', 'Valladolid', 'Vitoria', 'Zamora',
         'Zaragoza']
+def get_unique_values(df,column):
+    return df[column].unique()
+
+def get_price_for_houses_multiple_predictors(predictors,house_properties,province=True):
+    types = ['piso', 'apartamento', 'ático', 'loft', 'dúplex', 'estudio', 'casa',  'finca']
+    locations_province = get_province_names()
+    locations_capital = get_capital_names()
     locations = locations_province if province else locations_capital    
     if house_properties["type"] not in types:
         print("type not valid")
@@ -247,7 +251,17 @@ def run(house_properties,province,rent):
     predictors = load_predictors(get_filename(province,rent,"data/predictors_", ".pkl"))
     prices = get_price_for_houses_multiple_predictors(predictors,house_properties,province)
     return prices
-
+def run_multi(house_properties,province,rent,column_name,column_values):
+    predictors = load_predictors(get_filename(province,rent,"data/predictors_", ".pkl"))
+    house_properties[column_name] = column_values[0]
+    prices = get_price_for_houses_multiple_predictors(predictors,house_properties,province)
+    prices[column_name] = column_values[0]
+    for column_value in column_values[1:]:
+        house_properties[column_name] = column_value
+        prices1 = get_price_for_houses_multiple_predictors(predictors,house_properties,province)
+        prices1[column_name] = column_value
+        prices = pd.concat([prices,prices1])
+    return prices
 def get_filename(province,rent,root="data/",extension=""):
     location = "provincias" if province else "capitales"
     sale = "alquiler" if rent else "compra"

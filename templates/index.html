@@ -30,6 +30,20 @@
             width: 100%;
             padding: 0%;
         }
+        .province-option:hover {
+            background-color: #f5f5f5;
+            cursor: pointer;
+        }
+        .selected-option {
+            background-color: #16acfc;
+        }
+        .selected-option:hover {
+            background-color: #3c7696;
+        }
+        .dropdown-menu{
+          height:200px;
+          overflow-y:auto;
+       }
     </style>
 </head>
 
@@ -96,7 +110,6 @@
                         <option value="estudio" {% if type == 'estudio' %}selected{% endif %}>Estudio</option>
                         <option value="loft"  {% if type == 'loft' %}selected{% endif %}>Loft</option>
                         <option value="finca" {% if type == 'finca' %}selected{% endif %}>Finca</option>
-                        <option value="planta" {% if type == 'planta' %}selected{% endif %}>Planta</option>
                     </select>
                 </div>
                 <div class="col-sm-6 col-lg-3 mt-5">
@@ -108,11 +121,26 @@
                     </select>
                 </div>
                 <div class="col-sm-6 col-lg-3 mt-5">
-                    <input class="submit btn btn-primary" type="submit" value="Calcular" >
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                            Provincias
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                            <li ><input type="text" class="option-input input-group-text m-2" placeholder="buscar por nombre"> </li>
+                            <li class="dropdown-item province-option all-option" value="all">Todas</li>
+                            {% for province in provinces %}
+                            <li class="dropdown-item province-option province-option-default mt-2" value="{{ province }}">{{ province }}</li>
+                        {% endfor %}
+                        </ul>
+                      </div>
+                </div>
+                
+                <div class="col-sm-6 col-lg-3 mt-5">
+                    <input class="submit btn btn-primary" id="form-submit" type="submit" value="Calcular" >
                 </div>
             </div>
             <input type="hidden" name="province" value="1">
-
+            <input id="provinces-input" type="hidden" name="provinces" value="all">
                 
             
         </form>
@@ -165,6 +193,79 @@ $(".submit").click(function(e){
     $('#cargandomodal').modal('show');
     
 });
+
+var province_filter="";
+$(".province-option").addClass("selected-option");
+$(".province-option-default").click(function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    console.log($(this).text());
+    $(this).toggleClass("selected-option");
+    $(".all-option").removeClass("selected-option");
+    $(".option-input").val('');
+    province_filter="";
+    $(".province-option").show();
+
+});
+$(".all-option").click(function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    console.log($(this).text());
+    $(this).toggleClass("selected-option");
+    if($(this).hasClass("selected-option")){   
+        $(".province-option-default").addClass("selected-option");
+    }
+    else{
+        $(".province-option-default").removeClass("selected-option");
+    }
+    
+});
+
+$(".option-input").on("keyup",function(e){
+    if(e.keyCode == 13){
+        e.preventDefault();
+        e.stopPropagation();
+        console.log($(this).val());
+        //$(this).parent().addClass("selected-option");
+    }
+    else{
+        province_filter = $(this).val() ;
+        if(province_filter.length > 2){
+            $(".province-option").each(function(index,element){
+            if($(element).text().toLowerCase().includes(province_filter.toLowerCase())){
+                $(element).show();
+            }
+            else{
+                $(element).hide();
+            }
+        });
+        }
+        else{
+            $(".province-option").show();
+        }
+        
+    }
+});
+
+$("#form-submit").click(function(e){
+    //e.preventDefault();
+
+    //e.stopPropagation();
+    let provinces_array = [];
+    if($(".all-option").hasClass("selected-option")){
+        provinces_array.push("all");
+    }
+    else{
+        $(".province-option-default").each(function(index,element){
+            if($(element).hasClass("selected-option")){
+                provinces_array.push($(element).text());
+            }
+        });
+    }
+    let provinces_str = provinces_array.join(",");
+    $("#provinces-input").val(provinces_str);
+});
+
 </script>
 </html>
 

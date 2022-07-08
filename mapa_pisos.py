@@ -1,6 +1,7 @@
-from model import load_csv,clean_df,create_predictors_per_location,save_predictors,load_predictors,get_price_for_houses_multiple_predictors,save_predictions,save_predictions_to_db,load_df_from_db
+from model import load_csv,clean_df,create_predictors_per_location,save_predictors,load_predictors,get_price_for_houses_multiple_predictors,save_predictions,save_predictions_to_db,load_df_from_db,run_multi
 from sys import argv
 from map_view import run as run_view
+import pandas as pd
 
 def translate_parameters(parameters,args):
     for i in range(len(args)):
@@ -42,7 +43,21 @@ def get_filename(province,sale,root="data/",extension=""):
 
 def siono(value):
     return "si" if value else "no"
-
+def get_multiple_prices():
+    predictors = load_predictors(get_filename(True,False,"data/predictors_", ".pkl"))
+    house_properties = {
+        "surface" : 100,
+        "bedrooms" : 2,
+        "restrooms" : 2,
+        "elevator" : 1,
+        "terrace" : 1,
+        "floor" : 2,
+        "type" : 'piso',
+        "rent" : 1
+    }
+    price_df = run_multi(house_properties,True,True,"surface",range(40,210,10))
+    
+    return price_df
 def run(parameters):
     #df = load_csv(get_filename( parameters['province'],parameters['sale']))
     
@@ -75,7 +90,7 @@ def run(parameters):
     return price_df
 
 if __name__ == "__main__":
-
+    
     parameters = {
         'sale' : False,
         'province' : False,
@@ -94,6 +109,5 @@ if __name__ == "__main__":
     if len(argv) > 1:
         parameters = translate_parameters(parameters,argv[1:])
 
-    run(parameters)
-
+    prices = run(parameters)
     

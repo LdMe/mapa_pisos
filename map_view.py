@@ -62,11 +62,14 @@ def replace2(provinces):
     }
     provinces["provincia"] = provinces["provincia"].replace(to_replace)
 
-def merge_df_prices(df, prices):
+def merge_df_prices(df, prices, extra_column=None):
     df = df[df["provincia"]!= "Ceuta"]
     df = df[df["provincia"]!= "Melilla"]
     replace_province_names(prices)
-    df = df.merge(prices[['middle','max','min','provincia']] , on='provincia')
+    if extra_column is not None:
+        df = df.merge(prices[['middle','max','min','provincia',extra_column]] , on='provincia')
+    else:
+        df = df.merge(prices[['middle','max','min','provincia']] , on='provincia')
     replace2(df)
 
     return df
@@ -79,8 +82,11 @@ def move_canarias(df,xoff=3,yoff=6):
     df.loc[df["provincia"]=="Las Palmas","geometry"] =las_palmas_shift.geometry
     df.loc[df["provincia"]=="Santa Cruz de Tenerife","geometry"] =tenerife_shift.geometry
 
-def plot(df,title="",as_json=False):
-    fig  = px.choropleth(df,locations=df.index,geojson=df.geometry,title=title,color="middle",hover_name="provincia",hover_data={"min_str":True,'max_str':True,"middle":True},labels={"middle": "Precio medio","min_str":"Precio mínimo","max_str":"Precio máximo"},width=1000,height=1000,basemap_visible=False)
+def plot(df,title="",as_json=False,slider_col=None):
+    if slider_col is not None:
+        fig  = px.choropleth(df,locations=df.index,geojson=df.geometry,title=title,color="middle",animation_frame=slider_col,hover_name="provincia",hover_data={"min_str":True,'max_str':True,"middle":True},labels={"middle": "Precio medio","min_str":"Precio mínimo","max_str":"Precio máximo"},width=1000,height=1000,basemap_visible=False)
+    else:
+        fig  = px.choropleth(df,locations=df.index,geojson=df.geometry,title=title,color="middle",hover_name="provincia",hover_data={"min_str":True,'max_str':True,"middle":True},labels={"middle": "Precio medio","min_str":"Precio mínimo","max_str":"Precio máximo"},width=1000,height=1000,basemap_visible=False)
     fig.update_geos(fitbounds="locations")
     fig.update_layout(modebar_remove=['zoom', 'pan'])
     fig.update_layout(dragmode=False)
@@ -103,16 +109,16 @@ def return_plot_as_json(fig):
     return fig.to_json()
 
 
-def run(prices = None,title="",as_json=False):
+def run(prices = None,title="",as_json=False,slider_col=None):
     df = get_geodf()
     if prices is None:
         prices = get_prices("data/predictions_provincias_alquiler.csv")
     prepare_prices(prices)
-    df = merge_df_prices(df, prices)
+    df = merge_df_prices(df, prices,slider_col)
     format_thousands(df,"min")
     format_thousands(df,"max")
     move_canarias(df)
-    result = plot(df,title,as_json)
+    result = plot(df,title,as_json,slider_col=slider_col)
     return result
 
 if __name__ == "__main__":
