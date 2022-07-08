@@ -40,9 +40,10 @@
         .selected-option:hover {
             background-color: #3c7696;
         }
-        .dropdown-menu{
+        .dropdown-list{
           height:300px;
           overflow-y:auto;
+          padding: 0px;
        }
     </style>
 </head>
@@ -125,13 +126,16 @@
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                             Provincias
                         </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                            <li ><input type="text" class="option-input input-group-text m-2" placeholder="buscar por nombre"> </li>
-                            <li class="dropdown-item province-option all-option" value="all">Todas</li>
-                            {% for province in provinces %}
-                            <li class="dropdown-item province-option province-option-default mt-2" value="{{ province }}">{{ province }}</li>
-                        {% endfor %}
-                        </ul>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                            
+                            <input type="text" class="option-input input-group-text m-1" placeholder="buscar por nombre">
+                            <ul class="dropdown-list">
+                                <li class="dropdown-item province-option all-option" value="all">Todas</li>
+                                {% for province in provinces %}
+                                <li class="dropdown-item province-option province-option-default mt-2" value="{{ province }}">{{ province }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                       </div>
                 </div>
                 
@@ -240,7 +244,7 @@ $(".option-input").on("keyup",function(e){
     }
     else{
         province_filter = $(this).val() ;
-        if(province_filter.length > 2){
+        if(province_filter.length > 1){
             $(".province-option").each(function(index,element){
             if($(element).text().toLowerCase().includes(province_filter.toLowerCase())){
                 $(element).show();
