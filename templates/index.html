@@ -34,11 +34,15 @@
             background-color: #f5f5f5;
             cursor: pointer;
         }
+        .province-option {
+            font-weight: lighter;
+        }
         .selected-option {
-            background-color: #16acfc;
+            font-weight: bolder;
+            
         }
         .selected-option:hover {
-            background-color: #3c7696;
+            background-color: #f5f5f5;
         }
         .dropdown-list{
           height:300px;
@@ -122,9 +126,11 @@
                     </select>
                 </div>
                 <div class="col-sm-6 col-lg-3 mt-5">
+                    <label for="dropdownMenuButton1">Provincias</label>
+                    <br>
                     <div class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                            Provincias
+                            Todas
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                             
@@ -132,7 +138,7 @@
                             <ul class="dropdown-list">
                                 <li class="dropdown-item province-option all-option" value="all">Todas</li>
                                 {% for province in provinces %}
-                                <li class="dropdown-item province-option province-option-default mt-2" value="{{ province }}">{{ province }}</li>
+                                <li class="dropdown-item province-option province-option-default pt-2" value="{{ province }}">{{ province }}</li>
                                 {% endfor %}
                             </ul>
                         </div>
@@ -197,9 +203,25 @@ $(".submit").click(function(e){
     $('#cargandomodal').modal('show');
     
 });
-
+function get_selected_num()
+{
+    let selected_province_num = $('.province-option-default.selected-option').length
+    if (selected_province_num == $(".province-option-default").length){
+        $("#dropdownMenuButton1").text("Todas");
+        $(".all-option").addClass("selected-option");
+    }
+    else{
+        let text = selected_province_num + " seleccionadas";
+        if(selected_province_num == 1){
+            text = selected_province_num + " seleccionada";
+        }
+        $("#dropdownMenuButton1").text(text);
+        $(".all-option").removeClass("selected-option");
+    }
+}
 var province_filter="";
 var selected_provinces = "{{request.args.get('provinces')}}";
+
 console.log(selected_provinces);
 if(selected_provinces == "all" || selected_provinces == "None"){
     $(".province-option").addClass("selected-option");
@@ -210,6 +232,7 @@ if(selected_provinces == "all" || selected_provinces == "None"){
         }
     });
 }
+get_selected_num();
 $(".province-option-default").click(function(e){
     e.preventDefault();
     e.stopPropagation();
@@ -219,6 +242,7 @@ $(".province-option-default").click(function(e){
     $(".option-input").val('');
     province_filter="";
     $(".province-option").show();
+    get_selected_num();
 
 });
 $(".all-option").click(function(e){
@@ -228,9 +252,11 @@ $(".all-option").click(function(e){
     $(this).toggleClass("selected-option");
     if($(this).hasClass("selected-option")){   
         $(".province-option-default").addClass("selected-option");
+        get_selected_num();
     }
     else{
         $(".province-option-default").removeClass("selected-option");
+        $("#dropdownMenuButton1").text("0 seleccionadas");
     }
     
 });
