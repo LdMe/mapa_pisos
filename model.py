@@ -176,13 +176,13 @@ def get_mean_values(df):
 def get_province_names():
     return [
         'A Coruña', 'Araba', 'Albacete', 'Alacant', 'Almería', 'Asturias', 'Ávila',
-        'Badajoz', 'Illes Balears', 'Barcelona', 'Burgos', 'Cáceres', 'Cádiz', 'Cantabria',
-        'Castelló', 'Ciudad Real', 'Córdoba', 'Cuenca', 'Girona', 'Granada',
-        'Guadalajara', 'Gipuzkoa', 'Huelva', 'Huesca', 'Jaén', 'La Rioja',
+        'Badajoz', 'Illes Balears', 'Barcelona', 'Bizkaia','Burgos', 'Cáceres', 'Cádiz', 'Cantabria',
+        'Castelló', 'Ciudad Real', 'Córdoba', 'Cuenca', 'Gipuzkoa','Girona', 'Granada',
+        'Guadalajara',  'Huelva', 'Huesca', 'Jaén', 'La Rioja',
         'Las Palmas', 'León', 'Lleida', 'Lugo', 'Madrid', 'Málaga', 'Murcia', 'Navarra',
         'Ourense', 'Palencia', 'Pontevedra', 'Salamanca', 'Santa Cruz de Tenerife',
         'Segovia', 'Sevilla', 'Soria', 'Tarragona', 'Teruel', 'Toledo', 'València',
-        'Valladolid', 'Bizkaia', 'Zamora', 'Zaragoza']
+        'Valladolid',  'Zamora', 'Zaragoza']
 def get_capital_names():
     return [
         'A Coruña', 'Albacete', 'Alicante', 'Almería', 'Ávila', 'Badajoz', 'Barcelona',
