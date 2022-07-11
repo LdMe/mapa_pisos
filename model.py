@@ -11,6 +11,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.svm import SVR
 from sklearn.ensemble import GradientBoostingRegressor
 from prediction_repository import PredictionRepository
+from csv import get_houses_final as load_house_csv
 import pickle
 
 def encode_one_hot(df,col,prefix=""):
@@ -27,6 +28,8 @@ def load_df_from_db(province,rent):
     repo = PredictionRepository()
     df = repo.get_house_with_price_location_as_df(province,rent)
     return df
+def load_df_from_csv(province=True,rent=True):
+    return load_house_csv(province,rent)
 def clean_df(df):
     
     df = df[df != -1]
