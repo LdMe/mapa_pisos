@@ -11,7 +11,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.svm import SVR
 from sklearn.ensemble import GradientBoostingRegressor
 from prediction_repository import PredictionRepository
-from csv import get_houses_final as load_house_csv
+from csv_importer import get_houses_final as load_house_csv
 import pickle
 
 def encode_one_hot(df,col,prefix=""):
