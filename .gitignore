@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 
 data/MYSQL/
+venv_mapa_pisos/
