@@ -24,9 +24,12 @@ def encode_one_hot(df,col,prefix=""):
 def load_csv(file_path):
     df = pd.read_csv(file_path+'.csv')
     return df
-def load_df_from_db(province,rent):
+def load_df_from_db(province,rent,date = []):
     repo = PredictionRepository()
-    df = repo.get_house_with_price_location_as_df(province,rent)
+    if len(date) !=  2:
+        df = repo.get_house_with_price_location_as_df(province,rent)
+    else:
+        df = repo.get_house_with_price_location_as_df_month(province,rent,date[0],date[1])
     return df
 def load_df_from_csv(province=True,rent=True):
     return load_house_csv(province,rent)

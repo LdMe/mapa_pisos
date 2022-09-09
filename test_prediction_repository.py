@@ -22,7 +22,7 @@ class TestPredictionRepository(unittest.TestCase):
         self.assertEqual(where, "name = 'Madrid' AND province = 'False'")
 
     def test_get_prediction_parameters_id(self):
-        parameters = {"surface":100,"bedrooms":2,"restrooms":2,"elevator":1,"terrace":1,"floor":2,"type":"piso","rent":1}
+        parameters = {"surface":120,"bedrooms":2,"restrooms":2,"elevator":1,"terrace":1,"floor":2,"type":"piso","rent":1}
         prediction_parameters_id = self.repo.get_prediction_parameters_id(parameters)
         self.assertEqual(prediction_parameters_id, 1)
         parameters = {"surface":1000,"bedrooms":2,"restrooms":2,"elevator":1,"terrace":1,"floor":2,"type":"piso","rent":1}
@@ -60,6 +60,12 @@ class TestPredictionRepository(unittest.TestCase):
         self.repo.insert_prediction_prices(predictions,parameters,True)
         prediction_price = self.repo.get_prediction_price("Zaragoza", True, parameters)
         self.assertEqual(prediction_price, (617,776,930, datetime.date.today()))
-
+    
+    def test_get_house_with_price_location_as_df_month(self):
+        df = self.repo.get_house_with_price_location_as_df_month(1, True, 2022, 7)
+        self.assertEqual(df.shape, (24834, 13))
+        df = self.repo.get_house_with_price_location_as_df_month(1, False, 2022, 8)
+        self.assertEqual(df.shape, (95494, 13))
+        
 if __name__ == "__main__":
     unittest.main()

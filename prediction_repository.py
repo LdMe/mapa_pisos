@@ -105,6 +105,15 @@ class PredictionRepository:
         df = pd.DataFrame(data, columns=["id","title","price","surface","bedrooms","restrooms","features","description","url","rent","date","location_name","is_province"])
         return df
 
+    def get_house_with_price_location_as_df_month(self,province,rent,month="8",year="2022"):
+        province = 1 if province else 0
+        rent = 1 if rent else 0
+        data = self.dbmanager.select_data("house_with_price_location", "id,title,price,surface,bedrooms,restrooms,features,description,url,rent,date,location_name,is_province", "is_province={} AND rent={} AND YEAR(date) = {} AND MONTH(date) = {}".format(province,rent,year,month))
+        if not data or len(data) == 0:
+            return None
+        df = pd.DataFrame(data, columns=["id","title","price","surface","bedrooms","restrooms","features","description","url","rent","date","location_name","is_province"])
+        return df
+
 if __name__ == "__main__":
     parameters ={
         'surface' : 80,
