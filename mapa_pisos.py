@@ -1,3 +1,4 @@
+import threading
 from model import load_csv,clean_df,create_predictors_per_location,save_predictors,load_predictors,get_price_for_houses_multiple_predictors,save_predictions,save_predictions_to_db,load_df_from_db,run_multi,load_df_from_csv
 from sys import argv
 from map_view import run as run_view
@@ -92,6 +93,21 @@ def run(parameters,from_db=True):
     print("Predictions saved")
     return price_df
 
+""" function to save predictors for a specific month and year"""
+def build_and_save_month(province,rent,month,year):
+    df = load_df_from_db(province,rent,[month,year])
+    df = clean_df(df)
+    predictors = create_predictors_per_location(df)
+    save_predictors(predictors,get_filename(province,rent,"data/predictors_","_"+str(month)+"-"+str(year)+".pkl"))
+
+""" function to create and save predictions for each month of a time range """
+def run_monthly(province,rent,time_range):
+    for month, year in time_range:
+        """ run build and save month  in separate thread """
+        thread = threading.Thread(target=build_and_save_month, args=(province,rent,month,year))
+        thread.start()
+
+
 if __name__ == "__main__":
     
     parameters = {
@@ -112,5 +128,7 @@ if __name__ == "__main__":
     if len(argv) > 1:
         parameters = translate_parameters(parameters,argv[1:])
 
-    prices = run(parameters,from_db=False)
-    
+    #prices = run(parameters,from_db=False)
+
+    run_monthly(False,True,[[7,2022],[8,2022],[9,2022]])
+    run_monthly(False,False,[[7,2022],[8,2022],[9,2022]])
