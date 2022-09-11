@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -253,10 +254,26 @@ def save_predictions_to_db(prices,house_properties,province):
     prediction_repository.insert_prediction_prices(prices,house_properties,province)
 
 def run(house_properties,province,rent):
-    
     predictors = load_predictors(get_filename(province,rent,"data/predictors_", ".pkl"))
     prices = get_price_for_houses_multiple_predictors(predictors,house_properties,province)
     return prices
+def run_month(house_properties,province,rent,month,year):
+    predictors = load_predictors(get_filename(province,rent,"data/predictors_", "_"+str(month)+"-"+str(year)+".pkl"))
+    prices = get_price_for_houses_multiple_predictors(predictors,house_properties,province)
+    return prices
+def get_available_months(province,rent):
+    """ get list of filenames inside data/"""
+    province = "provincias" if province else "capitales"
+    rent = "alquiler" if rent else "compra"
+    files = os.listdir("./data/")
+    files = [f for f in files if f.startswith("predictors_"+province+"_"+rent)]
+    """ get month and year from each filename. Example filename: predictors_provincias_alquiler_9-2022.pkl"""
+    months = [[f.split("_")[-1].split("-")[0], f.split("_")[-1].split("-")[-1].split(".")[0]] for f in files]
+    """ keep only numeric values"""
+    for m in months:
+        if not m[0].isnumeric() or not m[1].isnumeric():
+            months.remove(m)
+    return months
 def run_multi(house_properties,province,rent,column_name,column_values):
     predictors = load_predictors(get_filename(province,rent,"data/predictors_", ".pkl"))
     house_properties[column_name] = column_values[0]
@@ -275,10 +292,26 @@ def get_filename(province,rent,root="data/",extension=""):
 
 if __name__ == '__main__':
     #df = load_csv("data/provincias_alquiler.csv")
-    df = load_df_from_db(province=False,rent=True)
-    df =clean_df(df)
-    print(df["type"].unique())
-    print(df["location_name"].unique())
+    #df = load_df_from_db(province=False,rent=True)
+    #df =clean_df(df)
+    #print(df["type"].unique())
+    #print(df["location_name"].unique())
+    months = get_available_months(province=True,rent=True)
+
+    house_properties = {
+        "surface" : 50,
+        "bedrooms" : 2,
+        "restrooms" : 1,
+        "elevator" : 1,
+        "terrace" : 1,
+        "floor" : 1,
+        "type" : "casa",
+        "rent" : 1
+    }
+    #print(run_month(house_properties,province=True,rent=True,month=months[0][0],year=months[0][1]))
+    for month in months:
+        result = run_month(house_properties,province=True,rent=True,month=month[0],year=month[1])
+        print(result[result["location_name"]=="Gipuzkoa"], month)
     exit()
     df = clean_df(df)
     #print(get_unique(df,"location_name"))
