@@ -274,6 +274,17 @@ def get_available_months(province,rent):
         if not m[0].isnumeric() or not m[1].isnumeric():
             months.remove(m)
     return months
+def get_last_month(province,rent):
+    months = get_available_months(province,rent)
+    months.sort(key=lambda x: (x[1],x[0]))
+    return months[-1]
+def load_last_predictors(province,rent):
+    month, year = get_last_month(province,rent)
+    return load_predictors(get_filename(province,rent,"data/predictors_", "_"+str(month)+"-"+str(year)+".pkl"))
+def run_last_month(house_properties,province,rent):
+    predictors = load_last_predictors(province,rent)
+    prices = get_price_for_houses_multiple_predictors(predictors,house_properties,province)
+    return prices
 def run_multi(house_properties,province,rent,column_name,column_values):
     predictors = load_predictors(get_filename(province,rent,"data/predictors_", ".pkl"))
     house_properties[column_name] = column_values[0]
@@ -309,9 +320,14 @@ if __name__ == '__main__':
         "rent" : 1
     }
     #print(run_month(house_properties,province=True,rent=True,month=months[0][0],year=months[0][1]))
+    #print(months)
+    #print(get_last_month(province=True,rent=True))
+    
     for month in months:
         result = run_month(house_properties,province=True,rent=True,month=month[0],year=month[1])
         print(result[result["location_name"]=="Gipuzkoa"], month)
+    last = run_last_month(house_properties,province=True,rent=True)
+    print(last[last["location_name"]=="Gipuzkoa"])
     exit()
     df = clean_df(df)
     #print(get_unique(df,"location_name"))

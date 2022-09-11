@@ -2,7 +2,7 @@
 import re
 from flask import Flask, render_template, request
 from map_view import run as run_view,get_title,plot_bars
-from model import run as run_model, run_multi as run_multi_model,get_province_names
+from model import run_last_month as run_model, run_multi as run_multi_model,get_province_names, get_last_month
 
 """ flask app"""
 
@@ -29,6 +29,7 @@ def index():
     provinces_list = request.args.get('provinces') if request.args.get('provinces') else 'all'
     
     prices = run_model(house_properties,province,1 - sale)
+    month, year = get_last_month(province,1 - sale)
     if provinces_list != 'all':
         provinces_list = provinces_list.split(',')
         prices = prices[prices["location_name"].isin(provinces_list)]
@@ -41,7 +42,7 @@ def index():
     prices["medio"] = prices["middle"]
     prices = prices[["mínimo","máximo","medio","provincia"]]
     prices_html = prices.to_html(classes="table table-striped table-bordered table-hover",index=False)
-    return render_template('index.html',graphJSON=result,bars = bars,rentorsale = rentorsale,prices_html = prices_html,provinces = provinces)
+    return render_template('index.html',graphJSON=result,bars = bars,rentorsale = rentorsale,prices_html = prices_html,provinces = provinces,month = month,year = year)
 
 @app.route('/graph')
 def graph():

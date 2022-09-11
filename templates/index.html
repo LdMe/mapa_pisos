@@ -173,6 +173,9 @@
         {% if rentorsale is defined %}
         <h1>Precio de pisos de {{rentorsale}}</h1>
         {% endif %}
+        {% if month is defined %}
+        <h2>{{month}} / {{year}}</h2>
+        {% endif %}
         <div class="container chart " id='chart' ></div>
         <div class="container chart" id='bars' ></div>
         <div class="container " >{{prices_html | safe}}</div>
