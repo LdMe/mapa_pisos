@@ -131,3 +131,4 @@ dmypy.json
 data/MYSQL/
 venv_mapa_pisos/
 .vscode/
+data/
