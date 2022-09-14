@@ -299,8 +299,17 @@ def run_multi(house_properties,province,rent,column_name,column_values):
 def get_filename(province,rent,root="data/",extension=""):
     location = "provincias" if province else "capitales"
     sale = "alquiler" if rent else "compra"
+    print("filename")
+    print(root+location+"_"+sale+extension)
     return root+location+"_"+sale+extension
-
+def run_months(house_properties,province,rent,months):
+    prices = []
+    for month in months:
+        prices1 = run_month(house_properties,province,rent,month[0],month[1])
+        prices1["date"] = str(month[0])+"/"+str(month[1])
+        prices.append(prices1)
+    prices = pd.concat(prices)
+    return prices
 if __name__ == '__main__':
     #df = load_csv("data/provincias_alquiler.csv")
     #df = load_df_from_db(province=False,rent=True)
@@ -322,7 +331,10 @@ if __name__ == '__main__':
     #print(run_month(house_properties,province=True,rent=True,month=months[0][0],year=months[0][1]))
     #print(months)
     #print(get_last_month(province=True,rent=True))
-    
+    get_available_months(province=True,rent=True)
+    print(sorted(months,key=lambda x: (x[1],x[0])))
+    print(run_months(house_properties,province=True,rent=True,months=months))
+    exit()
     for month in months:
         result = run_month(house_properties,province=True,rent=True,month=month[0],year=month[1])
         print(result[result["location_name"]=="Gipuzkoa"], month)
