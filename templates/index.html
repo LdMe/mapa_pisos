@@ -194,13 +194,7 @@
         {% if rentorsale is defined %}
             <h1>Precio de pisos de {{rentorsale}}</h1>
         {% endif %}
-        {% if dates_list is defined %}
-            {% if dates_list|length > 1 %}
-                <h2>{{dates_list[0][0]}} / {{dates_list[0][1]}} - {{dates_list[-1][0]}} / {{dates_list[-1][1]}} </h2>
-            {% else %}
-                <h2>{{dates_list[0][0]}} / {{dates_list[0][1]}}</h2>
-            {% endif %}
-        {% endif %}
+        
         <div class="container chart " id='chart' ></div>
         <div class="container chart" id='bars' ></div>
         <div class="container " >{{prices_html | safe}}</div>
