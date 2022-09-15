@@ -1,4 +1,5 @@
 import os
+import threading
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -260,6 +261,7 @@ def run(house_properties,province,rent):
 def run_month(house_properties,province,rent,month,year):
     predictors = load_predictors(get_filename(province,rent,"data/predictors_", "_"+str(month)+"-"+str(year)+".pkl"))
     prices = get_price_for_houses_multiple_predictors(predictors,house_properties,province)
+    prices["date"] = str(month)+"/"+str(year)
     return prices
 def get_available_months(province,rent):
     """ get list of filenames inside data/"""
@@ -302,13 +304,32 @@ def get_filename(province,rent,root="data/",extension=""):
     print("filename")
     print(root+location+"_"+sale+extension)
     return root+location+"_"+sale+extension
+
+def run_month_tread(house_properties,province,rent,month,year,results):
+    predictors = load_predictors(get_filename(province,rent,"data/predictors_", "_"+str(month)+"-"+str(year)+".pkl"))
+    prices = get_price_for_houses_multiple_predictors(predictors,house_properties,province)
+    prices["date"] = str(month)+"/"+str(year)
+    results.append(prices)
 def run_months(house_properties,province,rent,months):
     months = sorted(months,key=lambda x: (x[1],x[0]),reverse=False)
     prices = []
+    prices_threads = []
+    """ run each month in a different thread and save results in prices array"""
     for month in months:
+        """
         prices1 = run_month(house_properties,province,rent,month[0],month[1])
         prices1["date"] = str(month[0])+"/"+str(month[1])
         prices.append(prices1)
+        """
+        t = threading.Thread(target=run_month_tread, args=(house_properties,province,rent,month[0],month[1],prices))
+        t.start()
+        prices_threads.append(t)
+    """ wait for all threads to finish"""
+    for p in prices_threads:
+        p.join()
+    """ merge all dataframes"""
+    #print(prices)
+    prices = [p for p in prices if isinstance(p, pd.DataFrame)]
     prices = pd.concat(prices)
     return prices
 if __name__ == '__main__':
