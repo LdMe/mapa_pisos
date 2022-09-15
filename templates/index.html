@@ -62,7 +62,7 @@
     {% set elevator = request.args.get('elevator') if request.args.get('elevator') else 0 %}
     {% set terrace = request.args.get('terrace') if request.args.get('terrace') else 0 %}
     {% set type = request.args.get('type') if request.args.get('type') else "piso" %}
-    {% set sale = request.args.get('sale') if request.args.get('sale')== "1" else "0" %}
+    {% set rent = request.args.get('rent') if request.args.get('rent')== "1" else "0" %}
     <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
           <a class="navbar-brand" href="/"><img id="home-icon" src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" alt="home"></a>
@@ -120,9 +120,9 @@
                 <div class="col-sm-6 col-lg-3 mt-5">
                     <label for="rentorsale">Alquiler o venta</label>
                     <br>
-                    <select class="form-select" name="sale">
-                        <option value="0" {% if sale == "0" %}selected{% endif %}>Alquiler</option>
-                        <option value="1" {% if sale == "1" %}selected{% endif %}>Venta</option>
+                    <select class="form-select" name="rent">
+                        <option value="1" {% if rent == "1" %}selected{% endif %}>Alquiler</option>
+                        <option value="0" {% if rent == "0" %}selected{% endif %}>Venta</option>
                     </select>
                 </div>
                 
@@ -138,7 +138,7 @@
                             <input type="text" class="dates option-input input-group-text m-1" placeholder="buscar por nombre">
                             <ul class="dropdown-list">
                                 <li class="dropdown-item dates option all-option" value="all">Todas</li>
-                                {% for m in dates %}
+                                {% for m in dates|reverse %}
                                 <li class="dropdown-item dates option option-default pt-2" value="{{m[0]}}/{{m[1]}}">{{m[0]}}/{{m[1]}}</li>
                                 {% endfor %}
                             </ul>

@@ -303,6 +303,7 @@ def get_filename(province,rent,root="data/",extension=""):
     print(root+location+"_"+sale+extension)
     return root+location+"_"+sale+extension
 def run_months(house_properties,province,rent,months):
+    months = sorted(months,key=lambda x: (x[1],x[0]),reverse=False)
     prices = []
     for month in months:
         prices1 = run_month(house_properties,province,rent,month[0],month[1])

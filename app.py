@@ -14,7 +14,7 @@ def index():
     provinces = get_province_names()
     args = dict(request.args)
     months = get_available_months(True,False)
-    months = sorted(months,key=lambda x: (x[1],x[0]),reverse=True)
+    months = sorted(months,key=lambda x: (x[1],x[0]),reverse=False)
     if (len(args) == 0):
         return render_template('index.html',provinces = provinces,dates = months)
     house_properties = {
@@ -27,10 +27,10 @@ def index():
         "type" : request.args.get('type')
     }
     province = request.args.get('province')  if request.args.get('province') else 0
-    sale = 1 if request.args.get('sale')=='1' else 0
+    rent = 1 if request.args.get('rent')=='1' else 0
 
-    months = get_available_months(province=province,rent = 1 - sale)
-    months = sorted(months,key=lambda x: (x[1],x[0]),reverse=True)
+    months = get_available_months(province=province,rent = rent)
+    months = sorted(months,key=lambda x: (x[1],x[0]),reverse=False)
     provinces_list = request.args.get('provinces') if request.args.get('provinces') else 'all'
 
     months_list = request.args.get('dates') if request.args.get('dates') else 'all'
@@ -40,8 +40,8 @@ def index():
         months_list = months_list.split(',')
         months_list = [(int(x.split('/')[0]),int(x.split('/')[-1])) for x in months_list]
         months_list = sorted(months_list,key=lambda x: (x[1],x[0]),reverse=False)
-    prices = run_months(house_properties,province,1 - sale,months_list)
-    month, year = get_last_month(province,1 - sale)
+    prices = run_months(house_properties,province,rent,months_list)
+    month, year = get_last_month(province,rent)
     
     if provinces_list != 'all':
         provinces_list = provinces_list.split(',')
@@ -49,10 +49,10 @@ def index():
 
     
     title = get_title(house_properties)
-    save_predictions(prices,"predictions")
+    #save_predictions(prices,"predictions")
     result = run_view(prices,title,as_json=True,slider_col="date")
     
-    rentorsale = "alquiler" if  sale == 0 else "venta"
+    rentorsale = "alquiler" if  rent == 1 else "venta"
     bars = plot_bars(prices,as_json=True,slider_col="date")
     prices["mínimo"] = prices["min"]
     prices["máximo"] = prices["max"]
