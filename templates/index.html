@@ -30,11 +30,11 @@
             width: 100%;
             padding: 0%;
         }
-        .province-option:hover {
+        .option:hover {
             background-color: #f5f5f5;
             cursor: pointer;
         }
-        .province-option {
+        .option {
             font-weight: lighter;
         }
         .selected-option {
@@ -62,7 +62,7 @@
     {% set elevator = request.args.get('elevator') if request.args.get('elevator') else 0 %}
     {% set terrace = request.args.get('terrace') if request.args.get('terrace') else 0 %}
     {% set type = request.args.get('type') if request.args.get('type') else "piso" %}
-    {% set sale = request.args.get('sale') if request.args.get('sale')== "1" else "0" %}
+    {% set rent = request.args.get('rent') if request.args.get('rent')== "1" else "0" %}
     <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
           <a class="navbar-brand" href="/"><img id="home-icon" src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png" alt="home"></a>
@@ -120,25 +120,45 @@
                 <div class="col-sm-6 col-lg-3 mt-5">
                     <label for="rentorsale">Alquiler o venta</label>
                     <br>
-                    <select class="form-select" name="sale">
-                        <option value="0" {% if sale == "0" %}selected{% endif %}>Alquiler</option>
-                        <option value="1" {% if sale == "1" %}selected{% endif %}>Venta</option>
+                    <select class="form-select" name="rent">
+                        <option value="1" {% if rent == "1" %}selected{% endif %}>Alquiler</option>
+                        <option value="0" {% if rent == "0" %}selected{% endif %}>Venta</option>
                     </select>
                 </div>
+                
                 <div class="col-sm-6 col-lg-3 mt-5">
-                    <label for="dropdownMenuButton1">Provincias</label>
+                    <label for="dates-dropdown-button">Fechas</label>
                     <br>
                     <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dates-dropdown-button" data-bs-toggle="dropdown" aria-expanded="false">
                             Todas
                         </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                        <div class="dropdown-menu" aria-labelledby="dates-dropdown-button">
                             
-                            <input type="text" class="option-input input-group-text m-1" placeholder="buscar por nombre">
+                            <input type="text" class="dates option-input input-group-text m-1" placeholder="buscar por nombre">
                             <ul class="dropdown-list">
-                                <li class="dropdown-item province-option all-option" value="all">Todas</li>
+                                <li class="dropdown-item dates option all-option" value="all">Todas</li>
+                                {% for m in dates|reverse %}
+                                <li class="dropdown-item dates option option-default pt-2" value="{{m[0]}}/{{m[1]}}">{{m[0]}}/{{m[1]}}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                      </div>
+                </div>
+                <div class="col-sm-6 col-lg-3 mt-5">
+                    <label for="provinces-dropdown-button">Provincias</label>
+                    <br>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="provinces-dropdown-button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Todas
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="provinces-dropdown-button">
+                            
+                            <input type="text" class="provinces option-input input-group-text m-1" placeholder="buscar por nombre">
+                            <ul class="dropdown-list">
+                                <li class="dropdown-item provinces option all-option" value="all">Todas</li>
                                 {% for province in provinces %}
-                                <li class="dropdown-item province-option province-option-default pt-2" value="{{ province }}">{{ province }}</li>
+                                <li class="dropdown-item provinces option option-default pt-2" value="{{ province }}">{{ province }}</li>
                                 {% endfor %}
                             </ul>
                         </div>
@@ -151,6 +171,7 @@
             </div>
             <input type="hidden" name="province" value="1">
             <input id="provinces-input" type="hidden" name="provinces" value="all">
+            <input id="dates-input" type="hidden" name="dates" value="all">
                 
             
         </form>
@@ -171,8 +192,9 @@
           </div>
           
         {% if rentorsale is defined %}
-        <h1>Precio de pisos de {{rentorsale}}</h1>
+            <h1>Precio de pisos de {{rentorsale}}</h1>
         {% endif %}
+        
         <div class="container chart " id='chart' ></div>
         <div class="container chart" id='bars' ></div>
         <div class="container " >{{prices_html | safe}}</div>
@@ -183,44 +205,18 @@
 			  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
 			  crossorigin="anonymous"></script>
 <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+
+<script src = "{{ url_for('static', filename='js/graph.js') }}"></script>
+<script src = "{{ url_for('static', filename='js/source.js') }}"></script>
 <script type='text/javascript'>
-  var graphs = {{graphJSON | safe}};
-  var layout = {
+    var graphs = {{graphJSON | safe}};
     
-    yaxis: {fixedrange: true},
-    xaxis : {fixedrange: true}
-    };
-  Plotly.plot('chart',graphs,layout);
-  var barras = {{bars | safe}};
-  Plotly.plot('bars',barras,layout);
-</script>
+    var barras = {{bars | safe}};
+    plotGraph(graphs,barras);
+  </script>
 <script type='text/javascript'>
-$(".submit").click(function(e){
-    $('#cargandomodal').modal({
-    backdrop: 'static',
-    keyboard: false
-    });
-    $('#cargandomodal').modal('show');
-    
-});
-function get_selected_num()
-{
-    let selected_province_num = $('.province-option-default.selected-option').length
-    if (selected_province_num == $(".province-option-default").length){
-        $("#dropdownMenuButton1").text("Todas");
-        $(".all-option").addClass("selected-option");
-    }
-    else{
-        let text = selected_province_num + " seleccionadas";
-        if(selected_province_num == 1){
-            text = selected_province_num + " seleccionada";
-        }
-        $("#dropdownMenuButton1").text(text);
-        $(".all-option").removeClass("selected-option");
-    }
-}
-var province_filter="";
-var selected_provinces = "{{request.args.get('provinces')}}";
+
+
 
 console.log(selected_provinces);
 if(selected_provinces == "all" || selected_provinces == "None"){
@@ -232,79 +228,13 @@ if(selected_provinces == "all" || selected_provinces == "None"){
         }
     });
 }
-get_selected_num();
-$(".province-option-default").click(function(e){
-    e.preventDefault();
-    e.stopPropagation();
-    console.log($(this).text());
-    $(this).toggleClass("selected-option");
-    $(".all-option").removeClass("selected-option");
-    $(".option-input").val('');
-    province_filter="";
-    $(".province-option").show();
-    get_selected_num();
+var class_names = ["provinces","dates"];
+var selected_provinces = "{{request.args.get('provinces')}}";
+var selected_dates= "{{request.args.get('dates')}}";
+init_selected_class_name("provinces",selected_provinces);
+init_selected_class_name("dates",selected_dates);
+start(class_names);
 
-});
-$(".all-option").click(function(e){
-    e.preventDefault();
-    e.stopPropagation();
-    console.log($(this).text());
-    $(this).toggleClass("selected-option");
-    if($(this).hasClass("selected-option")){   
-        $(".province-option-default").addClass("selected-option");
-        get_selected_num();
-    }
-    else{
-        $(".province-option-default").removeClass("selected-option");
-        $("#dropdownMenuButton1").text("0 seleccionadas");
-    }
-    
-});
-
-$(".option-input").on("keyup",function(e){
-    if(e.keyCode == 13){
-        e.preventDefault();
-        e.stopPropagation();
-        console.log($(this).val());
-        //$(this).parent().addClass("selected-option");
-    }
-    else{
-        province_filter = $(this).val() ;
-        if(province_filter.length > 1){
-            $(".province-option").each(function(index,element){
-            if($(element).text().toLowerCase().includes(province_filter.toLowerCase())){
-                $(element).show();
-            }
-            else{
-                $(element).hide();
-            }
-        });
-        }
-        else{
-            $(".province-option").show();
-        }
-        
-    }
-});
-
-$("#form-submit").click(function(e){
-    //e.preventDefault();
-
-    //e.stopPropagation();
-    let provinces_array = [];
-    if($(".all-option").hasClass("selected-option")){
-        provinces_array.push("all");
-    }
-    else{
-        $(".province-option-default").each(function(index,element){
-            if($(element).hasClass("selected-option")){
-                provinces_array.push($(element).text());
-            }
-        });
-    }
-    let provinces_str = provinces_array.join(",");
-    $("#provinces-input").val(provinces_str);
-});
 
 </script>
 </html>

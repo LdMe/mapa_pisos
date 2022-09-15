@@ -128,4 +128,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-data/MYSQL
+data/MYSQL/
+venv_mapa_pisos/
+.vscode/
+data/predictor*

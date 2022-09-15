@@ -29,9 +29,12 @@ def prepare_prices(prices):
     prices["max"] =  prices.apply(lambda x: max(x['lower'], x['upper'] , x['middle']), axis=1)
     prices["min"] =  prices.apply(lambda x: min(x['lower'], x['upper'] , x['middle']), axis=1)
     prices["provincia"] = prices["location_name"]
-def plot_bars(prices,as_json=False):
+def plot_bars(prices,as_json=False,slider_col=None):
     replace2(prices)
-    fig = px.bar(prices, x="provincia", y=["min","middle","max"], barmode='group', labels={'min':'mínimo','middle':'media','max':'máximo','value':'precio estimado'},title="precios por provincia")
+    if slider_col is not None:
+        fig = px.bar(prices, x="provincia", y=["min","middle","max"], barmode='group', animation_frame=slider_col,labels={'min':'mínimo','middle':'media','max':'máximo','value':'precio estimado'},title="precios por provincia")
+    else:
+        fig = px.bar(prices, x="provincia", y=["min","middle","max"], barmode='group', labels={'min':'mínimo','middle':'media','max':'máximo','value':'precio estimado'},title="precios por provincia")
     fig.layout.xaxis.fixedrange = True
     fig.layout.yaxis.fixedrange = True
     newnames = {"min":"Precio mínimo","middle":"Precio medio","max":"Precio máximo"}    
