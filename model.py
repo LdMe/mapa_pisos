@@ -331,6 +331,7 @@ def run_months(house_properties,province,rent,months):
     #print(prices)
     prices = [p for p in prices if isinstance(p, pd.DataFrame)]
     prices = pd.concat(prices)
+    prices = prices.sort_values(by=["date"])
     return prices
 if __name__ == '__main__':
     #df = load_csv("data/provincias_alquiler.csv")
