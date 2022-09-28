@@ -3,7 +3,7 @@ import re
 from flask import Flask, render_template, request
 from map_view import run as run_view,get_title,plot_bars
 from model import run_last_month as run_model, run_months, run_multi as run_multi_model,get_province_names, get_last_month, get_available_months,save_predictions
-
+import prediction_controller as pc;
 """ flask app"""
 
 app = Flask(__name__)
@@ -63,6 +63,14 @@ def index():
     prices_html = prices.to_html(classes="table table-striped table-bordered table-hover",index=False)
     return render_template('index.html',graphJSON=result,bars = bars,rentorsale = rentorsale,prices_html = prices_html,provinces = provinces,month = month,year = year,dates = months,dates_list = months_list)
 
+
+@app.route('/api/v1/predict',methods=['GET'])
+def predict():
+    provinces =  pc.get_province_names()
+    args = dict(request.args)
+    prices = pc.predict(args)
+    prices_html = prices.to_html(classes="table table-striped table-bordered table-hover",index=False)
+    return prices_html
 @app.route('/months')
 def index2():
     provinces = get_province_names()
