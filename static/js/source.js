@@ -1,11 +1,58 @@
+var prices;
 $(".submit").click(function(e){
+    /*
     $('#cargandomodal').modal({
     backdrop: 'static',
     keyboard: false
     });
+    
+    $('#cargandomodal').modal('show');
+    */
+});
+
+$("#graph-button").click(function(e){
+    $("#graph-load").show();
+    //console.log(prices);
+    $.ajax({
+        url: "/api/v1/graph",
+        type: "POST",
+        data: prices,
+        contentType: "application/json",
+        success: function(data){
+            plotGraph(graphs=JSON.parse(data));
+            $("#graph-load").hide();
+        },
+        error: function(data){
+            console.log(data);
+            $("#graph-load").hide();
+        }
+    });
+    return;
     $('#cargandomodal').modal('show');
     
 });
+$("#bars-button").click(function(e){
+    $("#bars-load").show();
+    $.ajax({
+        url: "/api/v1/bars",
+        type: "POST",
+        data: prices,
+        contentType: "application/json",
+        success: function(data){
+            
+            plotGraph(graphs=null,barras=JSON.parse(data));
+            $("#bars-load").hide();
+        },
+        error: function(){
+            $("#bars-load").hide();
+        }
+    });
+
+    return;
+    $('#cargandomodal').modal('show');
+    
+});
+
 function init_selected_class_name(class_name,selected){
     if(selected == "all" || selected == "None"){
         $("."+class_name+".option").addClass("selected-option");
@@ -24,7 +71,7 @@ function get_selected_num(class_name)
     if (selected_province_num == $("."+class_name+".option-default").length){
         $("#"+class_name+"-dropdown-button").text("Todas");
         $("."+class_name + ".all-option").addClass("selected-option");
-        console.log("todas!!");
+        
     }
     else{
         let text = selected_province_num + " seleccionadas";
@@ -33,8 +80,7 @@ function get_selected_num(class_name)
         }
         $("#"+class_name+"-dropdown-button").text(text);
         $("."+class_name + ".all-option").removeClass("selected-option");
-        console.log(selected_province_num);
-        console.log( $("."+class_name).length)
+        
     }
 }
 /*
@@ -59,7 +105,6 @@ function select_default_option(class_name){
     $("."+class_name+".option-default").click(function(e){
         e.preventDefault();
         e.stopPropagation();
-        console.log($(this).text());
         $(this).toggleClass("selected-option");
         $("."+class_name+".all-option").removeClass("selected-option");
         $("."+class_name+".option-input").val('');
@@ -87,7 +132,6 @@ function select_all_option(class_name){
     $("."+class_name+".all-option").click(function(e){
         e.preventDefault();
         e.stopPropagation();
-        console.log($(this).text());
         $(this).toggleClass("selected-option");
         if($(this).hasClass("selected-option")){   
             $("."+class_name+".option-default").addClass("selected-option");
@@ -121,7 +165,6 @@ function input_key_up(class_name){
         if(e.keyCode == 13){
             e.preventDefault();
             e.stopPropagation();
-            console.log($(this).val());
             //$(this).parent().addClass("selected-option");
         }
         else{
@@ -186,6 +229,26 @@ function get_selected(class_name)
         let selected_str = selected_array.join(",");
         $("#"+class_name+"-input").val(selected_str);
 }
+function create_html_table(data){
+    let html = "<table class='table table-striped table-bordered table-hover table-sm'>";
+    html += "<thead class='thead-dark'><tr>";
+    for (let key in data[0]) {
+        html += "<th>"+key+"</th>";
+    }
+    html += "</tr></thead>";
+                // get body
+    html += "<tbody>";
+    for (let i = 0; i < data.length; i++) {
+        html += "<tr>";
+        for (let key in data[i]) {
+            html += "<td>"+data[i][key]+"</td>";
+        }
+        html += "</tr>";
+    }
+    html += "</tbody>";
+    html += "</table>";
+    $("#price-table").html(html);
+}
 
 function submit_form(class_names){
     $("#form-submit").click(function(e){
@@ -194,6 +257,25 @@ function submit_form(class_names){
         for (let i = 0; i < class_names.length; i++) {
             get_selected(class_names[i]);
         }
+        $("#price-load").show();
+        $form_data = $("#properties-form").serialize();
+        e.preventDefault();
+        //e.stopPropagation();
+        $.ajax({
+            url: "/api/v1/predict?"+$form_data,
+            type: "GET",
+            success: function(data){
+                prices = data;
+                data = JSON.parse(data);
+                create_html_table(data);
+
+            },
+            complete: function(){
+                $("#price-load").hide();
+            }
+
+        });
+
     });
 }
 function start(class_names){

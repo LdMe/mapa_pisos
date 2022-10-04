@@ -1,5 +1,5 @@
 
-from map_view import run as run_view,get_title,plot_bars
+from map_view import run as run_view,get_title,plot_bars as plot_bars_view
 import model
 
 
@@ -65,16 +65,24 @@ def predict(args):
     # prices["medio"] = prices["middle"]
     # prices["fecha"] = prices["date"]
     # prices = prices[["mínimo","máximo","medio","provincia","fecha"]]
+    prices["month"] = prices["date"].str.split('/').str[0].astype(int)
+    prices["year"] = prices["date"].str.split('/').str[-1].astype(int)
+    prices = prices.sort_values(by=["location_name","year","month"])
+    prices["lower"] = prices["lower"].astype(int)
+    prices["upper"] = prices["upper"].astype(int)
+    prices["middle"] = prices["middle"].astype(int)
+    """ change the name of the columns """
+    
     return prices
 
-def plot_map(house_properties,prices):
-    title = get_title(house_properties)
+def plot_map(prices,title=""):
     return run_view(prices,title,as_json=True,slider_col="date")
 
-def plot_bars(prices):
-    title = get_title(prices)
-    model.plot_bars(prices,title)
+def plot_bars(prices,title=""):
+    return plot_bars_view(prices,as_json=True,slider_col="date")
 
+def get_bins(stringResponse=False):
+    return model.get_bins(stringResponse)
 """
 def predict(args):
     provinces = get_province_names()

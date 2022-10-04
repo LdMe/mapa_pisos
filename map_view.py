@@ -29,8 +29,10 @@ def prepare_prices(prices):
     prices["max"] =  prices.apply(lambda x: max(x['lower'], x['upper'] , x['middle']), axis=1)
     prices["min"] =  prices.apply(lambda x: min(x['lower'], x['upper'] , x['middle']), axis=1)
     prices["provincia"] = prices["location_name"]
+    
 def plot_bars(prices,as_json=False,slider_col=None):
-    replace2(prices)
+    prepare_prices(prices)
+    #replace2(prices)
     if slider_col is not None:
         fig = px.bar(prices, x="provincia", y=["min","middle","max"], barmode='group', animation_frame=slider_col,labels={'min':'mínimo','middle':'media','max':'máximo','value':'precio estimado'},title="precios por provincia")
     else:

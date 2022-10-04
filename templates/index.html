@@ -3,6 +3,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/06081f40e2.js" crossorigin="anonymous"></script>
 
     <style>
         .modebar {
@@ -49,6 +50,14 @@
           overflow-y:auto;
           padding: 0px;
        }
+       .show:hover {
+           cursor: pointer;
+           background-color: aliceblue;
+       }
+       #price-table:hover {
+           
+           background-color: white;
+       }
     </style>
 </head>
 
@@ -71,12 +80,15 @@
     <div class="container">
         
         <h1>Calcula tu precio!</h1>
-        <form   action="/" method="get">
+        <form   id="properties-form" action="/" method="get">
             <div class="row">
                 <div class="col-sm-6 col-lg-3 mt-5">
                     <label for="surface">Superficie</label>
                     <br>
-                    <input class="input-group-text" type="number" name="surface" value={{ surface }} min="35" max="300">
+                    
+                    <select class="form-select" name="surface" id="surface-select">
+                        
+                    </select>
                 </div>
                 <div class="col-sm-6 col-lg-3 mt-5">
                     <label for="bedrooms">Habitaciones</label>
@@ -194,10 +206,44 @@
         {% if rentorsale is defined %}
             <h1>Precio de pisos de {{rentorsale}}</h1>
         {% endif %}
+        <button class="btn btn-primary" id="graph-button">Mostrar gráfico</button>
+        <button class="btn btn-primary" id="bars-button">Mostrar barras</button>
+        <div class="container show" id="price-table-show">
+            <div class="row">
+                <div class="col-8">
+                    <h2>Tabla de precios <i class="fas fa-chevron-down" id="price-down"></i><i class="fas fa-chevron-up" id="price-up"></i></h2>
+                </div>
+                <div class="col-4">
+                    <img style="width: 40px;" src="https://media1.giphy.com/media/sSgvbe1m3n93G/giphy.gif" id="price-load" alt="loading">
+                </div>
+            </div>    
+            <div class="container " id="price-table" ></div>
+        </div>
+        <div class="container show" id="chart-show">
+            <div class="row">
+                <div class="col-8">
+                    <h2>Mapa por provincias <i class="fas fa-chevron-down" id="graph-down"></i><i class="fas fa-chevron-up" id="graph-up"></i></h2>
+                </div>
+                <div class="col-4">
+                    <img style="width: 40px;" src="https://media1.giphy.com/media/sSgvbe1m3n93G/giphy.gif" id="graph-load" alt="loading">
+                </div>
+            </div>    
+            <div class="container chart" id="chart"></div>
+        </div>
+        <div class="container show" id="bars-show">
+            <div class="row">
+                <div class="col-8">
+                    <h2>Gráfico de barras <i class="fas fa-chevron-down" id="bars-down"></i><i class="fas fa-chevron-up" id="bars-up"></i></h2>
+                </div>
+                <div class="col-4">
+                    <img style="width: 40px;" src="https://media1.giphy.com/media/sSgvbe1m3n93G/giphy.gif" id="bars-load" alt="loading">
+                </div>
+            </div>     
+            <div class="container bars" id='bars' ></div>
+        </div>
         
-        <div class="container chart " id='chart' ></div>
-        <div class="container chart" id='bars' ></div>
         <div class="container " >{{prices_html | safe}}</div>
+        
     </div>
 </body>
 <script
@@ -205,6 +251,7 @@
 			  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
 			  crossorigin="anonymous"></script>
 <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+
 
 <script src = "{{ url_for('static', filename='js/graph.js') }}"></script>
 <script src = "{{ url_for('static', filename='js/source.js') }}"></script>
@@ -235,7 +282,64 @@ init_selected_class_name("provinces",selected_provinces);
 init_selected_class_name("dates",selected_dates);
 start(class_names);
 
+// get bins and labels from api with ajax
+$.ajax({
+    url: "/api/v1/bins",
+    type: "GET",
+    success: function(data){
+        var bins = data.bins;
+        var labels = data.labels;
+        // add options for id surface-select 
+        for (var i = 0; i < labels.length; i++) {
+            var option = document.createElement("option");
+            option.value = bins[i];
+            option.text = labels[i];
+            // get value of surface from url using only javascript
+            var url = new URL(window.location.href);
+            var surface = url.searchParams.get("surface");
+            // if bin in surface is equal to the bin in the api, select the option
+            if (option.value == surface){
+                option.selected = true;
+            }
+            document.getElementById("surface-select").appendChild(option);
+        }
+    },
+    error: function(error){
+        console.log(error);
+    }
+});
+$("#price-table-show").click(function(){
+    $("#price-table").toggle();
+    $("#price-down").toggle();
+    $("#price-up").toggle();
+});
+$("#chart-show").click(function(){
+    $("#chart").toggle();
+    $("#graph-down").toggle();
+    $("#graph-up").toggle();
+});
+$("#bars-show").click(function(){
+    $("#bars").toggle();
+    $("#bars-down").toggle();
+    $("#bars-up").toggle();
+});
+$("#price-table").click(function(e){
+    e.stopPropagation();
+});
+$("#chart").click(function(e){
+    e.stopPropagation();
+});
+$("#bars").click(function(e){
+    e.stopPropagation();
+});
+$("#price-down").hide();
+$("#graph-down").hide();
+$("#bars-down").hide();
 
+$("#price-load").hide();
+$("#graph-load").hide();
+$("#bars-load").hide();
+//$("#price-load").hide();
 </script>
 </html>
 

@@ -62,11 +62,14 @@ def clean_df(df):
     df_cp = df_cp.dropna()
     if df["rent"].any() == 1:
         df_cp = df_cp[df_cp["price"]< 4000]
+    else:
+        df_cp = df_cp[df_cp["price"]< 35000001]
     df_cp = df_cp[df_cp["surface"]< 2000]
     df_cp = df_cp[df_cp["surface"]> 29]
     df_cp = df_cp[df_cp["bedrooms"]< 10]
     df_cp = encode_one_hot(df_cp,"location_name")
     df_cp = encode_one_hot(df_cp,"type")
+    df_cp = get_binned_surface(df_cp)
     df_cp = df_cp.drop(["title","features","description","url","date"],axis=1)
     return df_cp
 
@@ -127,13 +130,14 @@ def pred_ints(model, X, percentile=80):
 
 """  calculate interval for gradientBoostingRegressor"""
 
-def create_predictors_gb(lower_alpha=0.1,upper_alpha=0.9,n_estimators=500):
+def create_predictors_gb(lower_alpha=0.2,upper_alpha=0.9,n_estimators=200):
     predictors = {}
     predictors['lower'] = GradientBoostingRegressor(loss="quantile",alpha=lower_alpha,n_estimators=n_estimators)
     predictors['middle'] = GradientBoostingRegressor(loss="quantile",alpha=0.5 ,n_estimators=n_estimators)
     predictors['upper'] = GradientBoostingRegressor(loss="quantile",alpha=upper_alpha,n_estimators=n_estimators)
     return predictors
 def pred_ints_gb(models, X):
+    X = get_binned_surface(X)
     predictions = {}
     for model in models:
         predictions[model] = models[model].predict(X)
@@ -181,6 +185,41 @@ def load_predictors(file_path):
 
 def get_mean_values(df):
     return df.mean()
+def get_binned(df,column_name,bins,labels):
+    df[column_name] = pd.cut(df[column_name], bins=bins, labels=labels,right=False).astype(float) 
+    return df
+def get_bins(stringResponse=False):
+    bins = [0,60,80,100,120,140,160,180,200,250,300,400,600,1000,3000]
+    if stringResponse:
+        labels = ["< 60","60-79","80-99","100-119","120-139","140-159","160-179","180-199","200-249","250-299","300-399","400-599","600-999"," >= 1000"]
+    else:
+        labels = [0,60,80,100,120,140,160,180,200,250,300,400,600,1000]
+    return bins,labels
+def get_binned_surface(df):
+    df_cp = df.copy()
+    #bins = [0,60,80,100,120,140,160,180,200,250,300,400,600,1000,3000]
+    #labels = [0,60,80,100,120,140,160,180,200,250,300,400,600,1000]
+    bins, labels = get_bins()
+    """ position = 20
+    max_position = 3000
+    step = 20
+    while position < max_position:
+        bins.append(position)
+        labels.append(position)
+        if position >= 200:
+            step = 50
+        if position >= 500:
+            step = 100
+        if position >= 1000:
+            step = 200
+        if position >= 2000:
+            step = 500
+        position += step
+    bins.append(max_position) """
+    #labels.append(max_position)
+    df_cp = get_binned(df_cp,"surface",bins,labels)
+    return df_cp
+
 def get_province_names():
     return [
         'A Coruña', 'Araba', 'Albacete', 'Alacant', 'Almería', 'Asturias', 'Ávila',
@@ -221,7 +260,7 @@ def get_price_for_houses_multiple_predictors(predictors,house_properties,provinc
     predictions = []
     for location in locations:
         df_dict = {
-            "surface" : [house_properties["surface"]],
+            "surface" : [int(house_properties["surface"])],
             "bedrooms" : [house_properties["bedrooms"]],
             "restrooms" : [house_properties["restrooms"]],
             "elevator" : [house_properties["elevator"]],
@@ -234,6 +273,7 @@ def get_price_for_houses_multiple_predictors(predictors,house_properties,provinc
         type_dict2[house_properties["type"]] = 1
         df1 = df_dict | location_dict2 | type_dict2
         df1 = pd.DataFrame.from_dict(df1)
+        
         prediction = pred_ints_gb(predictors[location],df1)
         #prediction = predictors[location].predict(df1)[0]
         prediction["location_name"] = location
