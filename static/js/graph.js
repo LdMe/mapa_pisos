@@ -5,7 +5,7 @@
     yaxis: {fixedrange: true},
     xaxis : {fixedrange: true}
     };
-  Plotly.plot('chart',graphs,layout);
+  Plotly.plot('graph',graphs,layout);
   var barras = {{bars | safe}};
   Plotly.plot('bars',barras,layout);
  */
@@ -17,8 +17,8 @@
       xaxis : {fixedrange: true}
       };
     if(graphs != null){
-      Plotly.purge('chart');
-      Plotly.plot('chart',graphs,layout);
+      Plotly.purge('graph');
+      Plotly.plot('graph',graphs,layout);
     }
     if(barras != null){
       Plotly.purge('bars');

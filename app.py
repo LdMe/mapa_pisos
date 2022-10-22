@@ -110,6 +110,19 @@ def get_bins():
     """ convert bins and labels lists to single json"""
     bins_json = {"bins":bins,"labels":labels}
     return bins_json
+
+@app.route('/api/v1/dates',methods=['GET'])
+def get_dates():
+    months = get_available_months(True,False)
+    months = sorted(months,key=lambda x: (int(x[1]),int(x[0])),reverse=False)
+    months_json = {"dates":months}
+    return months_json
+
+@app.route('/api/v1/provinces',methods=['GET'])
+def get_provinces():
+    provinces = get_province_names()
+    provinces_json = {"provinces":provinces}
+    return provinces_json
 @app.route('/months')
 def index2():
     provinces = get_province_names()
