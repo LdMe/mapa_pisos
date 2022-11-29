@@ -2,6 +2,7 @@
 import re
 from urllib import response
 from flask import Flask, render_template, request
+from flask_cors import CORS, cross_origin
 import pandas as pd
 from map_view import run as run_view,get_title,plot_bars
 from model import run_last_month as run_model, run_months, run_multi as run_multi_model,get_province_names, get_last_month, get_available_months,save_predictions
@@ -11,6 +12,8 @@ import prediction_controller as pc
 
 app = Flask(__name__)
 
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route('/')
 def index():
@@ -74,6 +77,7 @@ def index():
 def predict():
     
     args = dict(request.args)
+    print(args)
     prices = pc.predict(args)
     prices_json = prices.to_json(orient='records')
     #prices_html = prices.to_html(classes="table table-striped table-bordered table-hover",index=False)
