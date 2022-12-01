@@ -130,5 +130,5 @@ if __name__ == "__main__":
 
     #prices = run(parameters,from_db=False)
 
-    run_monthly(province=True,rent=True,time_range=[[10,2022],[9,2022],[8,2022],[7,2022]])
-    run_monthly(True,False,[[10,2022],[9,2022],[8,2022],[7,2022]])
+    run_monthly(province=True,rent=True,time_range=[[11,2022]])
+    run_monthly(True,False,[[11,2022]])

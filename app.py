@@ -15,6 +15,7 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+
 @app.route('/')
 def index():
     provinces = get_province_names()
@@ -78,7 +79,10 @@ def predict():
     
     args = dict(request.args)
     print(args)
+    pc.save_log(args)
     prices = pc.predict(args)
+
+    pc.save_log(prices)
     prices_json = prices.to_json(orient='records')
     #prices_html = prices.to_html(classes="table table-striped table-bordered table-hover",index=False)
     return prices_json
@@ -86,6 +90,8 @@ def predict():
 @app.route('/api/v1/graph',methods=['POST'])
 def api_graph():
     prices = request.get_json()
+    # save prices to log
+    pc.save_log(prices,"prices")
     prices = pd.DataFrame(prices)
     title = ""#request.args.get('title',"")
     result = pc.plot_map(prices,title)
@@ -103,6 +109,7 @@ def api_bars():
 @app.route('/api/v1/predict_graph',methods=['GET'])
 def predict_graph():
     args = dict(request.args)
+
     prices = pc.predict(args)
     title = "Predicción de precios"
     result = pc.plot_map(prices,title)

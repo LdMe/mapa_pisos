@@ -1,6 +1,7 @@
 
 from map_view import run as run_view,get_title,plot_bars as plot_bars_view
 import model
+from model import save_log as save_log
 
 
 
@@ -15,19 +16,20 @@ def get_available_dates():
     return months
 
 def get_house_properties(args):
+
     house_properties = {
         "surface" : args.get('surface'),
         "bedrooms" : args.get('bedrooms'),
         "restrooms" : args.get('restrooms'),
-        "elevator" : args.get('elevator',0),
-        "terrace" : args.get('terrace',0),
+        "elevator" : 1 if args.get('elevator',0) else 0,
+        "terrace" :1 if args.get('terrace',0) else 0,
         "floor" : args.get('floor'),
         "type" : args.get('type')
     }
     return house_properties
 
 def is_province(args):
-    province = args.get('province')
+    province = 1 if args.get('province',1) else 0 
     return province
     
 def is_rent(args):
@@ -51,12 +53,15 @@ def get_selected_dates(args):
         selected_dates = sorted(selected_dates,key=lambda x: (x[1],x[0]),reverse=False)
     return selected_dates
 
+
+
 def predict(args):
     house_properties = get_house_properties(args)
     province = is_province(args)
     rent = is_rent(args)
     selected_provinces = get_selected_provinces(args)
     selected_dates = get_selected_dates(args)
+    save_log(house_properties,"house_properties")
     prices = model.run_months(house_properties,province,rent,selected_dates)
     if selected_provinces != 'all':
         prices = prices[prices["location_name"].isin(selected_provinces)]

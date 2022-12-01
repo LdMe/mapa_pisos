@@ -287,7 +287,11 @@ def save_predictions(prices,file_path):
     
     prices.to_csv(file_path+'.csv',index=False)
 
-
+def save_log(request,message=""):
+    with open("log.txt","a") as f:
+        f.write("\n------------------- "+message + "-------------------\n")
+        f.write(str(request)+"\n")
+    
 
 def save_predictions_to_db(prices,house_properties,province):
     print("saving to db")
@@ -350,6 +354,7 @@ def run_month_tread(house_properties,province,rent,month,year,results):
     prices = get_price_for_houses_multiple_predictors(predictors,house_properties,province)
     prices["date"] = str(month)+"/"+str(year)
     results.append(prices)
+
 def run_months(house_properties,province,rent,months):
     months = sorted(months,key=lambda x: (x[1],x[0]),reverse=False)
     prices = []
@@ -370,8 +375,9 @@ def run_months(house_properties,province,rent,months):
     """ merge all dataframes"""
     #print(prices)
     prices = [p for p in prices if isinstance(p, pd.DataFrame)]
-    prices = pd.concat(prices)
-    prices = prices.sort_values(by=["date"])
+    if len(prices) > 0:
+        prices = pd.concat(prices)
+        prices = prices.sort_values(by=["date"])
     return prices
 if __name__ == '__main__':
     #df = load_csv("data/provincias_alquiler.csv")
