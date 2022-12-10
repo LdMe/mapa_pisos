@@ -14,15 +14,16 @@ def get_available_dates():
     months = model.get_available_months(True,False)
     months = sorted(months,key=lambda x: (x[1],x[0]),reverse=False)
     return months
-
+def is_false(value):
+    return value == 'false' or value == 'False' or value == '0' or value == 0
 def get_house_properties(args):
-
+    save_log(args,"args")
     house_properties = {
         "surface" : args.get('surface'),
         "bedrooms" : args.get('bedrooms'),
         "restrooms" : args.get('restrooms'),
-        "elevator" : 1 if args.get('elevator',0) else 0,
-        "terrace" :1 if args.get('terrace',0) else 0,
+        "elevator" : 0 if is_false(args.get('elevator',0)) else 1,
+        "terrace" :0 if is_false(args.get('terrace',0)) else 1,
         "floor" : args.get('floor'),
         "type" : args.get('type')
     }
