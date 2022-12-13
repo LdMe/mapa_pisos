@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  mapa_pisos:
+    image: mapa_pisos
+    build: ./docker
+    volumes:
+      - .:/app
+    command: python3 app.py
+    networks:
+      - pisos_api
+networks:
+  pisos_api:

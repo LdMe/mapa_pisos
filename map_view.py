@@ -5,7 +5,7 @@ import plotly
 import json
 import geopandas as gpd
 import pandas as pd
-from model import load_df_from_db
+from model import load_df_from_db, save_log
 
 def get_geodf():
     url = url = 'data/provincias-espanolas.geojson'
@@ -19,6 +19,7 @@ def format_thousands(df,column):
     df[column+"_str"] = df[column].astype('str').str.replace(r'([0-9]+)([0-9]{6})$',r'\1.\2M',regex=True)
     df[column+"_str"] = df[column+"_str"].str.replace(r'([0-9]{2,})([0-9]{3})$',r'\1.\2k',regex=True)
 def prepare_prices(prices):
+    save_log(prices,"prices")
     prices["lower"]= prices["lower"].astype('float')
     prices["middle"]= prices["middle"].astype('float')
     prices["upper"]= prices["upper"].astype('float')
@@ -29,8 +30,10 @@ def prepare_prices(prices):
     prices["max"] =  prices.apply(lambda x: max(x['lower'], x['upper'] , x['middle']), axis=1)
     prices["min"] =  prices.apply(lambda x: min(x['lower'], x['upper'] , x['middle']), axis=1)
     prices["provincia"] = prices["location_name"]
+    
 def plot_bars(prices,as_json=False,slider_col=None):
-    replace2(prices)
+    prepare_prices(prices)
+    #replace2(prices)
     if slider_col is not None:
         fig = px.bar(prices, x="provincia", y=["min","middle","max"], barmode='group', animation_frame=slider_col,labels={'min':'mínimo','middle':'media','max':'máximo','value':'precio estimado'},title="precios por provincia")
     else:
