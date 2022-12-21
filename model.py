@@ -273,7 +273,7 @@ def get_price_for_houses_multiple_predictors(predictors,house_properties,provinc
         type_dict2[house_properties["type"]] = 1
         df1 = df_dict | location_dict2 | type_dict2
         df1 = pd.DataFrame.from_dict(df1)
-        
+        df1 = df1.reindex(sorted(df1.columns), axis=1)
         prediction = pred_ints_gb(predictors[location],df1)
         #prediction = predictors[location].predict(df1)[0]
         prediction["location_name"] = location
